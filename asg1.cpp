@@ -21,11 +21,13 @@ class ItemNode{
     ItemNode* aft;
     ItemNode* bef;
 
-    ItemNode(string n=NULL, float p=0){
-        n=name;
-        p=price;
+    ItemNode(string n="", float p=0.0){
+        name=n;
+        price=p;
+        aft=NULL;
+        bef=NULL;
     };
-    ItemNode* next;
+
 };
 
 class List{
@@ -37,22 +39,137 @@ class List{
     void task2(ItemNode*);
     void task3();
     void task4(ItemNode*,int);
-    ItemNode* task5(int);
+    void task5(int);
     void task6();
 };
 
+// Task 1
+void List:: task1(ItemNode* N){
+    head = N;
+    tail = N;
+    N->aft = NULL;
+    N->bef = NULL;
+}
 
-// Task 5
-ItemNode* List:: task5(int x){
-    int currIndex = 0;
-    int targetIndex = x;
+//Task 2
+void List::task2(ItemNode* N){
+    N->aft = head;
+    head->bef = N;
+    N->bef = NULL;
+    head = N;
+}
+
+//Task3
+void List::task3(){
+    ItemNode* currNode = tail;
+    cout<<"Print backward:"<<endl;
+    while(currNode != NULL){
+        cout << "[" << currNode->name;
+        cout << "\t" << currNode->price << "]\t";
+        currNode = currNode->bef;
+    }
+    cout<<endl<<endl;
+}
+
+//Task 4
+void List::task4(ItemNode* n,int position){
+        ItemNode* currNode = head;
+        int currIndex = 1;
+
+        while (currNode && currIndex < position) {
+            currNode = currNode->aft;
+            currIndex++;
+        }
+
+        // If ending
+        if (currNode == NULL) {
+            // Insert at the end
+            tail->aft = n;
+            n->bef = tail;
+            tail = n;
+            return;
+        }
+        n->aft = currNode;
+        n->bef = currNode->bef;
+
+        // Update previous node's pointer
+        if (currNode->bef) {
+            currNode->bef->aft = n;
+        } else {
+            // If inserting at the head
+            head = n;
+        }
+
+        // Update current node's previous pointer
+        currNode->bef = n;
+}
+
+//Task 5
+void List::task5(int x){
+    if (head == NULL) return;
+
     ItemNode* currNode = head;
-    ItemNode* prevNode = NULL;
+    int currIndex = 1;
 
-    while(currIndex != targetIndex){
-        currNode = currNode->next;
+    // Move cursor
+    while (currNode && currIndex < x) {
+        currNode = currNode->aft;
         currIndex++;
     }
+
+    // If index out of bounds
+    if (!currNode) return;
+
+    // Delete head
+    if (currNode == head) {
+        head = currNode->aft;
+        if (head) head->bef = NULL;
+        else tail = NULL; 
+    }
+    // Delete tail
+    else if (currNode == tail) {
+        tail = currNode->bef;
+        if (tail) tail->aft = NULL;
+        else head = NULL; 
+    }
+    // Deleting middle node
+    else {
+        currNode->bef->aft = currNode->aft;
+        currNode->aft->bef = currNode->bef;
+    }
+
+    delete currNode;
+}
+
+//Task 6
+void List::task6() {
+    // If list is empty
+    if (tail == NULL) {
+        cout << "List is empty. Cannot delete." << endl;
+        return;
+    }
+
+    // If only one node
+    if (head == tail) {
+        delete tail;
+        head = NULL;
+        tail = NULL;
+        return;
+    }
+
+    // Multiple nodes
+    ItemNode* temp = tail;
+    tail = tail->bef;
+    
+    // Update the new tail's aft pointer
+    if (tail != NULL) {
+        tail->aft = NULL;
+    }
+    else
+        head=NULL;
+
+    // Delete the last node
+    delete temp;
 }
 
 int main() { 
